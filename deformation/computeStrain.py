@@ -1,5 +1,5 @@
-
 import numpy as np
+
 def computeStrainTensorGreen(ref, moving):
     strain = np.zeros((ref.n_cells, 3, 3))
     triangles = ref.faces.reshape((-1, 3))[:, 1:]
@@ -7,6 +7,15 @@ def computeStrainTensorGreen(ref, moving):
         E = np.pinv(ref.points[t])@moving.points[t]
         strain[i] = (E.T@E - np.eye(3))/2
     return strain
+
+def computeStrainTensorInfinitessimal(ref, moving):
+    strain = np.zeros((ref.n_cells, 3, 3))
+    triangles = ref.faces.reshape((-1, 3))[:, 1:]
+    for i, t in enumerate(triangles):
+        E = np.pinv(ref.points[t])@moving.points[t]
+        strain[i] = (E.T + E)/2  - np.eye(3)
+    return strain
+
 
 def computeStrainCoefficientAlongDirection(strain, v):
     """

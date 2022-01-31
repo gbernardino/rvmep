@@ -1,4 +1,55 @@
 import scipy, scipy.sparse,scipy.sparse.linalg, numpy as np
+import gdist
+
+"""
+Code for 
+
+Main function
+1) computeAnatomicalDirections: 
+        Returns the longitudinal and circumferential directions, computed at each triangle, using either the geodesics or the heat equation.
+2) propagateDirections:
+        Given a vector field defined on the tangent space of meshRef, propagate it to meshTarget; assuming they are in point to point correspondence
+"""
+
+
+def computeAnatomicalDirections(mesh,apexPointId, valvesPointsId, method = 'heat' ):
+    """
+    Computes the longitudinal and circumferential directions
+    """
+    if method == 'heat':
+        return computeAnatomicalDirectionsHeatEquation(mesh, apexPointId, valvesPointsId)
+    elif method == 'geodesics'
+        return computeAnatomicalDirectionsGeodesics(mesh, apexPointId)
+    else:
+        raise ValueError('Method unknown')
+
+def propagateDirections(meshRef, directions, meshTarget):
+    """
+    Propagate directions defined in the tangent space of each cell from meshRef to mesh Target
+    """
+    triangles = meshRef.faces.reshape((-1, 4))[:, 1:]
+    points = meshRef.points
+    pointsTarget = meshTarget.points
+    directionsTarget = np.zeros_like(directions)
+    # Express the directions in the tangent space in the triangle reference frame, and use it to translete it.
+    for i, t in enumerate(triangles):
+        theta = np.linspace.pinv(np.array([points[t[1]] - points[t[0]], points[t[2]] - points[t[0]]]).T, directions[i])
+        directionsTarget[i] = np.array([pointsTarget[t[1]] - pointsTarget[t[0]], pointsTarget[t[2]] - pointsTarget[t[0]]]).T  @ theta
+    return directionsTarget
+
+
+
+def computeAnatomicalDirectionsGeodesics(mesh, apexPointId):
+    """
+    Computes the longitudinal direction, using a single orifice.
+    """
+    triangles = mesh.faces.reshape((-1, 4))[:, 1:]
+    distance = gdist.compute_gdist(mesh.points, triangles.astype(np.int32), np.array([apexPointId] ,dtype = np.int32 ))
+    vLongitudinal = grad_3d(mesh, distance)
+    vLongitudinal = vLongitudinal / np.linalg.norm(vLongitudinal, axis = 1).reshape((-1, 1))
+    vCircumferential = np.cross(vLongitudinal, mesh.cell_normals)
+    return vLongitudinal, vCircumferential
+
 
 def computeAnatomicalDirectionsHeatEquation(mesh, apexPointId, valvesPointsId):
     """
@@ -67,8 +118,6 @@ def ComputeCotangentLaplacian( vertex, faces ):
 
     return L
 
-def propagateDirections(meshRef, directions, meshTarget):
-    pass
 
 
 # Utils
