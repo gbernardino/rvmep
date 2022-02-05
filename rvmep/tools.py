@@ -57,6 +57,6 @@ def addArrayToMeshVTK(mesh, array, name, domain = 'points'):
     if domain == 'points':
          mesh.GetPointData().AddArray(arrayVTK)
     elif domain == 'faces':
-         mesh.GetPointData().AddArray(arrayVTK)
+         mesh.GetCellData().AddArray(arrayVTK)
     else:
         raise ValueError('Unknown domain')
