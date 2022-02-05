@@ -2,7 +2,7 @@ import scipy, scipy.sparse,scipy.sparse.linalg, numpy as np
 import gdist
 
 """
-Code for 
+Code for computing the anatomical directions following the method descrived in Doste et al. 2019,
 
 Main function
 1) computeAnatomicalDirections: 
@@ -18,7 +18,7 @@ def computeAnatomicalDirections(mesh,apexPointId, valvesPointsId, method = 'heat
     """
     if method == 'heat':
         return computeAnatomicalDirectionsHeatEquation(mesh, apexPointId, valvesPointsId)
-    elif method == 'geodesics'
+    elif method == 'geodesics':
         return computeAnatomicalDirectionsGeodesics(mesh, apexPointId)
     else:
         raise ValueError('Method unknown')
