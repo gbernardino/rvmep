@@ -1,5 +1,13 @@
 import numpy as np
 
+def computeDeformationTensor(ref, moving):
+    E = np.zeros((ref.n_cells, 3, 3))
+    triangles = ref.faces.reshape((-1, 4))[:, 1:]
+    for i, t in enumerate(triangles):
+        E[i] = np.linalg.pinv(ref.points[t])@moving.points[t]
+    return E
+
+
 def computeStrainTensorGreen(ref, moving):
     strain = np.zeros((ref.n_cells, 3, 3))
     triangles = ref.faces.reshape((-1, 4))[:, 1:]

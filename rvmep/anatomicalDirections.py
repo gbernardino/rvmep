@@ -47,11 +47,12 @@ def computeAnatomicalDirectionsGeodesics(mesh, apexPointId):
     distance = gdist.compute_gdist(mesh.points, triangles.astype(np.int32), np.array([apexPointId] ,dtype = np.int32 ))
     vLongitudinal = grad_3d(mesh, distance)
     vLongitudinal = vLongitudinal / np.linalg.norm(vLongitudinal, axis = 1).reshape((-1, 1))
+
     vCircumferential = np.cross(vLongitudinal, mesh.cell_normals)
     return vLongitudinal, vCircumferential
 
 
-def computeAnatomicalDirectionsHeatEquation(mesh, apexPointId, valvesPointsId):
+def computeAnatomicalDirectionsHeatEquation(mesh, apexPointId, valvesPointsId, no_nan = False):
     """
     Computes the longitudinal direction, using a single orifice.
     """
@@ -61,6 +62,14 @@ def computeAnatomicalDirectionsHeatEquation(mesh, apexPointId, valvesPointsId):
     heat = solveLaplaceBeltrami(mesh.points, triangles, boundary)
     vLongitudinal = grad_3d(mesh, heat)
     vLongitudinal = vLongitudinal / np.linalg.norm(vLongitudinal, axis = 1).reshape((-1, 1))
+
+    # Set the cells with no gradient to an arbitrary.
+    if no_nan:
+        for i, v in enumerate(vLongitudinal):
+            if np.any(np.isnan(v)):
+                v = mesh.points[triangles[i][1]] - mesh.points[triangles[i][0]]
+                vLongitudinal[i] = v/np.linalg.norm(v)
+
     vCircumferential = np.cross(vLongitudinal, mesh.cell_normals)
     return vLongitudinal, vCircumferential
 
