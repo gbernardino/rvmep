@@ -4,10 +4,11 @@ Right Ventricle MEsh Processing (RVMEP) tools for the cardiac right ventricle. T
 - Generation of longitudinal and circumferential directions following [2]
 - Computation of regional volumes (apical, basal, outlet) following the method descrived in [1]. An javascript version of this to test without installation is available at https://gbernardino.github.io/RVparcellation/#/computation. It is an static webpage and therefore there is no data transfer to the server.
 - Synthetic deformation of a mesh, by prescribing strains in longitudinal/circumferential directions.
-- [Coming soon] Strain computation.
+- Strain computation in basis.
+- Mesh reconstruction (work in progress)
 
 ## Contact
-Please send me an email at gabriel.bernardino@univ-lyon1.fr
+Please send me an email at gabriel.bernardino@upf.edu
 
 ## References
 
