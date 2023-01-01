@@ -10,6 +10,10 @@ Right Ventricle MEsh Processing (RVMEP) tools for the cardiac right ventricle. T
 ## Contact
 Please send me an email at gabriel.bernardino@upf.edu
 
+## Contributors
+- Gabriel Bernardino
+- Thomas Dargent (strain)
+
 ## References
 
 [1] Bernardino G, Hodzic A, Langet H, Legallois D, De Craene M, González Ballester MÁ, Saloux É, Bijnens B. Volumetric parcellation of the cardiac right ventricle for regional geometric and functional assessment. Med Image Anal. 2021 Jul;71:102044. doi: 10.1016/j.media.2021.102044. Epub 2021 Apr 6. PMID: 33872960.
