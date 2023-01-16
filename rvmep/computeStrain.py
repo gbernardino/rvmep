@@ -8,10 +8,6 @@ def computeDeformationTensor(ref, moving):
         E[i] = np.linalg.pinv(D@ ref.points[t]) @ D @moving.points[t]
     return E
 
-
-
-
-
 def computeStrainTensorInfinitessimal(ref, moving):
     strain = np.zeros((ref.n_cells, 3, 3))
     E = computeDeformationTensor(ref, moving)
@@ -21,7 +17,7 @@ def computeStrainTensorInfinitessimal(ref, moving):
 
 def computeStrainTensorGreen(ref, moving):
     E = computeDeformationTensor(ref, moving)
-    strain = (np.einsum('nji,njk->nik', E, E) - np.eye(3))/2
+    strain = (np.einsum('nij,nkj->nik', E, E) - np.eye(3))/2
     return strain
 
 
