@@ -1,4 +1,4 @@
-import numpy as np, pyvista
+import numpy as np, pyvista, pathlib, collections
 from vtk.util.numpy_support import vtk_to_numpy, numpy_to_vtk
 
 def read_ucd_to_vtk(path):
@@ -60,3 +60,14 @@ def addArrayToMeshVTK(mesh, array, name, domain = 'points'):
          mesh.GetCellData().AddArray(arrayVTK)
     else:
         raise ValueError('Unknown domain')
+
+def readAllMeshes(path):
+    meshes = collections.defaultdict(dict)
+    for p in pathlib.Path(path).iterdir():
+        if p.suffix == (".vtk"):
+            n = p.stem.split('_')
+            pId = '_'.join(n[:-1])
+            frame = int(n[-1])
+            meshes[pId][frame] = pyvista.PolyData(p)
+    meshes = {k : [v[t] for t,_ in enumerate(v)] for k, v in meshes.items()}
+    return meshes
