@@ -39,10 +39,19 @@ def getTomtecApexValvePointsRV():
     """
     Hand selected points from the TOMTEC RV model
     """
-    pointsTricuspid = np.array([388, 389, 392, 393, 144, 540, 145, 538, 539, 422, 423, 38, 541, 49, 55, 328, 329, 332, 333, 87, 94, 100, 101, 103, 104, 105, 122, 123, 126, 127])
-    pointsPulmonary = np.array([410, 411, 409, 408, 53, 64, 65, 66, 67, 68, 69, 83, 476, 477, 92, 478, 480, 481, 482, 483, 484, 485, 486, 487, 488, 489, 479])
+    pointsTricuspidBoundary = np.array([388, 389, 392, 393, 144, 540, 145, 538, 539, 422, 423, 38, 541, 49, 55, 328, 329, 332, 333, 87, 94, 100, 101, 103, 104, 105, 122, 123, 126, 127])
+    pointsPulmonaryBoundary = np.array([410, 411, 409, 408, 53, 64, 65, 66, 67, 68, 69, 83, 476, 477, 92, 478, 480, 481, 482, 483, 484, 485, 486, 487, 488, 489, 479])
+    pointsValve =  np.array([ 38,  49,  53,  55,  63,  64,  65,  66,  67,  68,  69,  83,  87,
+        92,  94, 100, 101, 102, 103, 104, 105, 122, 123, 124, 125, 126,
+       127, 140, 141, 142, 143, 144, 145, 152, 153, 154, 155, 156, 157,
+       328, 329, 330, 331, 332, 333, 388, 389, 390, 391, 392, 393, 406,
+       407, 408, 409, 410, 411, 420, 421, 422, 423, 456, 457, 458, 459,
+       460, 461, 462, 463, 464, 465, 466, 467, 468, 469, 470, 471, 476,
+       477, 478, 479, 480, 481, 482, 483, 484, 485, 486, 487, 488, 489,
+       536, 537, 538, 539, 540, 541, 919, 920, 921, 922, 923, 924, 925,
+       926, 927, 928, 929, 930, 931, 932, 933, 934, 935, 936, 937])
     apexId = 906
-    return apexId, pointsTricuspid, pointsPulmonary
+    return apexId, pointsTricuspidBoundary, pointsPulmonaryBoundary, pointsValve
 
 def numpyToPyvista(points, triangles):
     return pyvista.PolyData(points,  np.concatenate((3*np.ones([len(triangles), 1], dtype = np.uint16) , triangles), axis = 1).flatten())

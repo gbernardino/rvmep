@@ -33,7 +33,7 @@ def propagateDirections(meshRef, directions, meshTarget):
     directionsTarget = np.zeros_like(directions)
     # Express the directions in the tangent space in the triangle reference frame, and use it to translete it.
     for i, t in enumerate(triangles):
-        theta = np.linspace.pinv(np.array([points[t[1]] - points[t[0]], points[t[2]] - points[t[0]]]).T, directions[i])
+        theta = np.linalg.pinv(np.array([points[t[1]] - points[t[0]], points[t[2]] - points[t[0]]]).T, directions[i])
         directionsTarget[i] = np.array([pointsTarget[t[1]] - pointsTarget[t[0]], pointsTarget[t[2]] - pointsTarget[t[0]]]).T  @ theta
     return directionsTarget
 
