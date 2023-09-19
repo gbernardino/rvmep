@@ -19,9 +19,12 @@ def getCoordinatesTriangle(vtkMesh, triangleCoordinates2D):
         triangleCoordinates3D[t] = deformMesh.triangleCoordinatesFromLengths(ls)
     return triangleCoordinates3D
 
-def translateDeformation(target, ref_undeformed, ref_deformed, linear =False):
-    apexId, pointsTricuspid, pointsPulmonary = tools.getTomtecApexValvePointsRV()
-    valvePoints = np.concatenate([pointsTricuspid, pointsPulmonary])
+def translateDeformation(target, ref_undeformed, ref_deformed, linear =False, anatomicalLandmarks = None):
+    if anatomicalLandmarks is None:
+        apexId, pointsTricuspid, pointsPulmonary = tools.getTomtecApexValvePointsRV()
+        valvePoints = np.concatenate([pointsTricuspid, pointsPulmonary])
+    else:
+        apexId, valvePoints = anatomicalLandmarks['apexId'], anatomicalLandmarks['valvePoints']
     edges = edgeStructures.getEdges(target)
 
     vLongitudinal, vCirc = anatomicalDirections.computeAnatomicalDirectionsHeatEquation(target, apexId, valvePoints, True)

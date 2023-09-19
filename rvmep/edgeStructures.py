@@ -15,6 +15,8 @@ class EdgeLocator:
  
     def buildLocator(self, vtkMesh, manifold = True):
         self.manifold = manifold
+        self.faces = vtkMesh.faces.reshape((-1, 4))[:, 1:]
+
         self.edgeDictionary = collections.defaultdict(lambda: None)
         for i in range(vtkMesh.GetNumberOfCells()):
             p = [int(vtkMesh.GetCell(i).GetPointId(j)) for j in range(3)]
@@ -24,6 +26,7 @@ class EdgeLocator:
 
     def buildLocatorFromNP(self, faces, manifold = True):
         self.manifold = manifold
+        self.faces = faces
         self.edgeDictionary = collections.defaultdict(lambda: None)
         for i,t  in enumerate(faces):
             self.add_edge(t[0], t[1], i)
@@ -42,7 +45,7 @@ class EdgeLocator:
 
     def locateAllFacesByEdge(self, edgeStart, edgeEnd):
         """
-        Returns a list withthe index of all faces incident with that edge (ie 2)
+        Returns a list with the index of all faces incident with that edge (ie 2)
         """
         
         return list(filter(lambda s: s is not None, [self.edgeDictionary[(edgeStart, edgeEnd)], self.edgeDictionary[(edgeEnd, edgeStart)] ]))
@@ -52,6 +55,20 @@ class EdgeLocator:
             return set(list(self.edgeDictionary.keys()) + [(a, b) for b, a in self.edgeDictionary.keys()])
         else:
             return set(self.edgeDictionary.keys())
+        
+    def adjacentFaces(self, f):
+        """
+        Returns the faces adjacent to a given face, inefficient
+        """
+        foundFaces = []
+        face = self.faces[f]
+        for i in range(len(face)):
+            iNext=  (i + 1) % len(face)
+            t, tNext = face[i], face[iNext]
+            faces = self.locateAllFacesByEdge(t, tNext)
+            foundFaces += [((t,tNext) , ff) for ff in faces if ff != f]
+        return foundFaces
+    
 class EdgeFace:
     def __init__(self, fId, t, e):
         self.fId = fId
@@ -78,6 +95,37 @@ def getEdges(vtkMesh):
                                                     EdgeFace(f[0], triangles[f[0]], e),
                                                     EdgeFace(f[1], triangles[f[1]], e)))
     return _edgesNonDegenerate
+
+def consistentOrientation(t1, t2, e):
+    # Check if two triangles have the same orientation
+    # t1, t2: two triangles
+    # return: True if they have the same orientation, False otherwise
+    while t1[0] != e[0]:
+        t1 = np.roll(t1, 1)
+    while t2[0] != e[0]:
+        t2 = np.roll(t2, 1)
+    return t1[1] != t2[1] and t1[2] != t2[2]
+
+def correcctTrianglesOrientation(triangles):
+    locator = EdgeLocator()
+    locator.buildLocatorFromNP(triangles, False)
+
+    consistent = set()
+    neighbours = [0]
+    while neighbours:
+        n = neighbours.pop()
+        if n in consistent:
+            continue
+        consistent.add(n)
+        for (e, l) in locator.adjacentFaces(n):
+            if l in consistent:
+                if not consistentOrientation(triangles[n], triangles[l], e):
+                    raise ValueError('Inconsistency with already checked')
+                continue
+            if not consistentOrientation(triangles[n], triangles[l], e):
+                triangles[l] = triangles[l][::-1]
+            neighbours.append(l)
+    return triangles
 
 def getEdgesAndNeighbours(m, edgesNonDegenerate = None):
     """

@@ -105,7 +105,7 @@ def reconstructMeshLinear(triangleCoordinates, dihedral, edges, triangles, nPoin
     A_cnstr = scipy.sparse.coo_matrix((np.ones(4),
                                    ([0, 1, 2, 3], 
                                     [0, nPoints + 0, nPoints + 1, nPoints + 2])
-                                  ), shape = (4, ATA.shape[1])) 
+                                  ), shape = (4, ATA.shape[1])).tocsr()
     
     A_lagrange = scipy.sparse.bmat([
                     [ATA, A_cnstr.T], 
@@ -120,7 +120,7 @@ def reconstructMeshLinear(triangleCoordinates, dihedral, edges, triangles, nPoin
 
 #Constructing sparse matrices
 def zerosSparse(shape):
-    return scipy.sparse.coo_matrix((np.zeros(0),(np.zeros(0), np.zeros(0))), shape =shape)
+    return scipy.sparse.coo_matrix((np.zeros(0),(np.zeros(0), np.zeros(0))), shape =shape).tocsr()
 
 class SparseMatrixConstructor:
     def __init__(self, nElements):
@@ -140,7 +140,7 @@ class SparseMatrixConstructor:
     def build(self, shape = None):
         return scipy.sparse.coo_matrix(
             (self.data[:self.count], (self.rows[:self.count], self.columns[:self.count])), 
-            shape = shape)
+            shape = shape).tocsr()
 
 def constructEnergyMatrix( R, a, edges, triangles, nPoints, wRotations = 1., wPoints = 1.):
     """

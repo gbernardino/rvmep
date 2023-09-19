@@ -87,7 +87,7 @@ def solveLaplaceBeltrami(points, triangles, boundary):
         lagrange_multipliers[i, k] = 1
         boundary_values[i] = v
     zeros = np.zeros((nConstraints, nConstraints))
-    L_hat = scipy.sparse.bmat([[L, lagrange_multipliers.T], [lagrange_multipliers, zeros]])
+    L_hat = scipy.sparse.bmat([[L, lagrange_multipliers.T], [lagrange_multipliers, zeros]]).tocsr()
     b_hat = np.concatenate([np.zeros(nPoints), boundary_values])
     x_hat = scipy.sparse.linalg.spsolve(L_hat, b_hat)
     return x_hat[:nPoints]
@@ -119,6 +119,7 @@ def ComputeCotangentLaplacian( vertex, faces ):
         W = W + scipy.sparse.coo_matrix( (1 / np.tan(ang),(faces[i2,:],faces[i3,:])), shape=(n, n) )
         W = W + scipy.sparse.coo_matrix( (1 / np.tan(ang),(faces[i3,:],faces[i2,:])), shape=(n, n) )
 
+    W = W.tocsr()
 
     #compute laplacian
     d = W.sum(axis=0)
@@ -146,9 +147,9 @@ def grad_3d(mesh, scalarField):
 
         # t10 = gradient@p10 (resp. t20 and p20)
         gradient = np.linalg.pinv([p10, p20, np.cross(p10, p20)])@np.array([t10, t20, 0])
-        assert np.abs(gradient@p10 - t10) <= 1e-4
-        assert np.abs(gradient@p20 - t20) <= 1e-4
-        assert np.abs(gradient@np.cross(p10, p20)) <= 1e-4
+        assert np.abs(gradient@p10 - t10) <= 1e-6
+        assert np.abs(gradient@p20 - t20) <= 1e-6
+        assert np.abs(gradient@np.cross(p10, p20)) <= 1e-6
 
         cell_gradients[i] = gradient
     return cell_gradients
