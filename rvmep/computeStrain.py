@@ -26,3 +26,4 @@ def computeStrainCoefficientAlongDirection(strain, v):
     Compute the green strain along a direction, with the correction to make it comparable to engineering strain.
     """
     return np.sqrt(1 + 2*np.einsum('ni,nij,nj->n', v, strain, v)) -1 
+

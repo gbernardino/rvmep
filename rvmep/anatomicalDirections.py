@@ -1,5 +1,6 @@
 import scipy, scipy.sparse,scipy.sparse.linalg, numpy as np
 import gdist
+from . import tools
 
 """
 Code for computing the anatomical directions following the method descrived in Doste et al. 2019,
@@ -11,17 +12,26 @@ Main function
         Given a vector field defined on the tangent space of meshRef, propagate it to meshTarget; assuming they are in point to point correspondence
 """
 
+def computeAnatomicalDirectionsTomtec(mesh, method = 'heat' ):
+    apexId, pointsTricuspidBoundary, pointsPulmonaryBoundary, valveCells = tools.getTomtecApexValvePointsRV()
+    if method == 'longitudinal':
+        raise NotImplementedError('Longitudinal method not implemented yet for Tomtec')
+        
+    valvePoints =  np.concatenate([pointsTricuspidBoundary, pointsPulmonaryBoundary])
+    return computeAnatomicalDirections(mesh, apexId, valvePoints, method)
+
 
 def computeAnatomicalDirections(mesh,apexPointId, valvesPointsId, method = 'heat' ):
     """
-    Computes the longitudinal and circumferential directions
+    Computes the longitudinal and circumferential directions.
     """
+    
     if method == 'heat':
         return computeAnatomicalDirectionsHeatEquation(mesh, apexPointId, valvesPointsId)
     elif method == 'geodesics':
         return computeAnatomicalDirectionsGeodesics(mesh, apexPointId)
     else:
-        raise ValueError('Method unknown')
+        raise ValueError('Method unknown. It should be one of {heat, geodesics}')
 
 def propagateDirections(meshRef, directions, meshTarget):
     """
@@ -33,8 +43,8 @@ def propagateDirections(meshRef, directions, meshTarget):
     directionsTarget = np.zeros_like(directions)
     # Express the directions in the tangent space in the triangle reference frame, and use it to translete it.
     for i, t in enumerate(triangles):
-        theta = np.linalg.pinv(np.array([points[t[1]] - points[t[0]], points[t[2]] - points[t[0]]]).T, directions[i])
-        directionsTarget[i] = np.array([pointsTarget[t[1]] - pointsTarget[t[0]], pointsTarget[t[2]] - pointsTarget[t[0]]]).T  @ theta
+        theta = np.linalg.pinv(np.array([points[t[1]] - points[t[0]], points[t[2]] - points[t[0]]]).T)@ directions[i].T
+        directionsTarget[i] = (np.array([pointsTarget[t[1]] - pointsTarget[t[0]], pointsTarget[t[2]] - pointsTarget[t[0]]]).T  @ theta).T
     return directionsTarget
 
 
@@ -61,7 +71,7 @@ def computeAnatomicalDirectionsHeatEquation(mesh, apexPointId, valvesPointsId, n
     boundary[apexPointId] = 0
     heat = solveLaplaceBeltrami(mesh.points, triangles, boundary)
     vLongitudinal = grad_3d(mesh, heat)
-    vLongitudinal = vLongitudinal / np.linalg.norm(vLongitudinal, axis = 1).reshape((-1, 1))
+    vLongitudinal = vLongitudinal / (np.linalg.norm(vLongitudinal, axis = 1)).reshape((-1, 1))
 
     # Set the cells with no gradient to an arbitrary.
     if no_nan:
